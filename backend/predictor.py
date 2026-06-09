@@ -40,10 +40,36 @@ class Predictor:
         self._load()
 
     def _load(self) -> None:
-        """Eagerly load model and scaler; log errors but don't crash the server."""
+        import os, urllib.request
+
+        # Auto-download from Google Drive if files missing (Render ephemeral filesystem)
+        H5_GDRIVE_ID     = "1eendamuu32R0m2Q2CQCSCVGgNb5eSjZi"
+        SCALER_GDRIVE_ID = "1V7VxAwKwWZWb_xk8JASmXvAx9cEHvUU6"
+
+        def gdrive_download(file_id, dest_path):
+            if os.path.exists(dest_path) and os.path.getsize(dest_path) > 1000:
+                logger.info("File already exists: %s", dest_path)
+                return
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            url = f"https://drive.google.com/uc?export=download&id={file_id}&confirm=t"
+            logger.info("Downloading %s from Google Drive...", dest_path)
+            urllib.request.urlretrieve(url, dest_path)
+            logger.info("Downloaded %s (%.1f MB)", dest_path,
+                        os.path.getsize(dest_path) / 1024 / 1024)
+
         try:
-            import tf_keras as keras
-            self._model = keras.models.load_model(MODEL_PATH, compile=False)    
+            gdrive_download(H5_GDRIVE_ID, MODEL_PATH)
+        except Exception as exc:
+            logger.error("Failed to download model: %s", exc)
+
+        try:
+            gdrive_download(SCALER_GDRIVE_ID, SCALER_PATH)
+        except Exception as exc:
+            logger.error("Failed to download scaler: %s", exc)
+
+        try:
+            import tensorflow as tf
+            self._model = tf.keras.models.load_model(MODEL_PATH, compile=False)
             logger.info("Keras model loaded from %s", MODEL_PATH)
         except Exception as exc:
             logger.error("Failed to load Keras model: %s", exc)
