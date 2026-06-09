@@ -53,7 +53,7 @@ class Predictor:
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             logger.info("Downloading %s from Google Drive...", dest_path)
             import gdown
-            gdown.download(id=file_id, output=dest_path, quiet=False, fuzzy=True)
+            gdown.download(id=file_id, output=dest_path, quiet=False)
             logger.info("Downloaded %s (%.1f MB)", dest_path,
                         os.path.getsize(dest_path) / 1024 / 1024)
 
