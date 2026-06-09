@@ -1,0 +1,24 @@
+# render.yaml
+# -----------------------------------------------------------------------
+# Render.com deployment manifest for the FastAPI backend.
+# USER: Push this file to your GitHub repo root (or backend/ — set rootDir).
+# After first deploy, add MODEL_PATH / SCALER_PATH in Render's Environment
+# tab, or upload model artifacts via the Render shell / persistent disk.
+# -----------------------------------------------------------------------
+
+services:
+  - type: web
+    name: diabetes-prediction-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_PATH
+        value: ./models/hybrid_dl.h5
+      - key: SCALER_PATH
+        value: ./models/scaler.pkl
+      - key: PYTHON_VERSION
+        value: "3.10.14"
+    healthCheckPath: /health
+    autoDeploy: true

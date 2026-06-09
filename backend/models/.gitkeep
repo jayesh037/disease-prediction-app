@@ -1,0 +1,2 @@
+# Drop hybrid_dl.h5 and scaler.pkl into this directory before running the server.
+# These files are excluded from version control via .gitignore.

@@ -1,0 +1,18 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+
+# Model artifacts (too large for git — upload manually to Render)
+backend/models/hybrid_dl.h5
+backend/models/scaler.pkl
+backend/models/feature_cols.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Env
+.env
+*.env
