@@ -42,8 +42,8 @@ class Predictor:
     def _load(self) -> None:
         """Eagerly load model and scaler; log errors but don't crash the server."""
         try:
-            import tensorflow as tf  # deferred import so health check still responds
-            self._model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+            import tf_keras as keras
+            self._model = keras.models.load_model(MODEL_PATH, compile=False)    
             logger.info("Keras model loaded from %s", MODEL_PATH)
         except Exception as exc:
             logger.error("Failed to load Keras model: %s", exc)
