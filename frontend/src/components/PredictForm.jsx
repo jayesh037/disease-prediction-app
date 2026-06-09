@@ -1,162 +1,58 @@
 // src/components/PredictForm.jsx
-// -----------------------------------------------------------------------
-// Input form for all 8 clinical features + Region + IndianZone.
-// Validates ranges client-side (matching backend Pydantic constraints).
-// Disables submit while loading. Shows inline field-level error messages.
-// USER: Validation ranges (Glucose 44-200 etc.) must stay in sync with
-// schemas.py. The Region dropdown values must match the API enum exactly.
-// -----------------------------------------------------------------------
-
 import React, { useState, useCallback } from 'react';
 
-const REGIONS = ['South_Asia', 'North_America', 'Europe', 'East_Asia', 'Africa'];
+const REGIONS     = ['South_Asia', 'North_America', 'Europe', 'East_Asia', 'Africa'];
 const INDIAN_ZONES = ['North', 'South', 'East', 'West', 'Central'];
 
 const FIELDS = [
-  {
-    key: 'Pregnancies',
-    label: 'Pregnancies',
-    type: 'integer',
-    min: 0,
-    max: 20,
-    step: 1,
-    placeholder: '0–20',
-    hint: 'Number of times pregnant',
-    icon: '🤰',
-  },
-  {
-    key: 'Glucose',
-    label: 'Glucose',
-    type: 'float',
-    min: 44,
-    max: 200,
-    step: 0.1,
-    placeholder: '44–200 mg/dL',
-    hint: 'Plasma glucose concentration (mg/dL)',
-    icon: '🩸',
-  },
-  {
-    key: 'BloodPressure',
-    label: 'Blood Pressure',
-    type: 'float',
-    min: 20,
-    max: 140,
-    step: 0.1,
-    placeholder: '20–140 mm Hg',
-    hint: 'Diastolic blood pressure (mm Hg)',
-    icon: '💓',
-  },
-  {
-    key: 'SkinThickness',
-    label: 'Skin Thickness',
-    type: 'float',
-    min: 0,
-    max: 100,
-    step: 0.1,
-    placeholder: '0–100 mm',
-    hint: 'Triceps skin fold thickness (mm)',
-    icon: '📏',
-  },
-  {
-    key: 'Insulin',
-    label: 'Insulin',
-    type: 'float',
-    min: 0,
-    max: 900,
-    step: 0.1,
-    placeholder: '0–900 µU/mL',
-    hint: '2-hour serum insulin (µU/mL)',
-    icon: '💉',
-  },
-  {
-    key: 'BMI',
-    label: 'BMI',
-    type: 'float',
-    min: 10,
-    max: 70,
-    step: 0.1,
-    placeholder: '10–70 kg/m²',
-    hint: 'Body mass index (kg/m²)',
-    icon: '⚖️',
-  },
-  {
-    key: 'DiabetesPedigreeFunction',
-    label: 'Pedigree Function',
-    type: 'float',
-    min: 0,
-    max: 2.5,
-    step: 0.001,
-    placeholder: '0.000–2.500',
-    hint: 'Diabetes pedigree function score',
-    icon: '🧬',
-  },
-  {
-    key: 'Age',
-    label: 'Age',
-    type: 'integer',
-    min: 1,
-    max: 120,
-    step: 1,
-    placeholder: '1–120 years',
-    hint: 'Age in years',
-    icon: '🗓️',
-  },
+  { key: 'Pregnancies',             label: 'Pregnancies',      type: 'integer', min: 0,   max: 20,  step: 1,     placeholder: '0–20',         hint: 'Times pregnant',             icon: '🤰' },
+  { key: 'Glucose',                 label: 'Glucose',          type: 'float',   min: 44,  max: 200, step: 0.1,   placeholder: '44–200 mg/dL', hint: 'Plasma glucose (mg/dL)',      icon: '🩸' },
+  { key: 'BloodPressure',           label: 'Blood Pressure',   type: 'float',   min: 20,  max: 140, step: 0.1,   placeholder: '20–140 mm Hg', hint: 'Diastolic BP (mm Hg)',        icon: '💓' },
+  { key: 'SkinThickness',           label: 'Skin Thickness',   type: 'float',   min: 0,   max: 100, step: 0.1,   placeholder: '0–100 mm',     hint: 'Triceps fold (mm)',           icon: '📏' },
+  { key: 'Insulin',                 label: 'Insulin',          type: 'float',   min: 0,   max: 900, step: 0.1,   placeholder: '0–900 µU/mL',  hint: '2-hr serum insulin',         icon: '💉' },
+  { key: 'BMI',                     label: 'BMI',              type: 'float',   min: 10,  max: 70,  step: 0.1,   placeholder: '10–70 kg/m²',  hint: 'Body mass index',             icon: '⚖️' },
+  { key: 'DiabetesPedigreeFunction',label: 'Pedigree Function',type: 'float',   min: 0,   max: 2.5, step: 0.001, placeholder: '0.000–2.500',  hint: 'Diabetes pedigree score',    icon: '🧬' },
+  { key: 'Age',                     label: 'Age',              type: 'integer', min: 1,   max: 120, step: 1,     placeholder: '1–120 yrs',    hint: 'Age in years',               icon: '🗓️' },
 ];
 
 const DEFAULTS = {
-  Pregnancies: '',
-  Glucose: '',
-  BloodPressure: '',
-  SkinThickness: '',
-  Insulin: '',
-  BMI: '',
-  DiabetesPedigreeFunction: '',
-  Age: '',
-  Region: 'South_Asia',
-  IndianZone: '',
+  Pregnancies: '', Glucose: '', BloodPressure: '', SkinThickness: '',
+  Insulin: '', BMI: '', DiabetesPedigreeFunction: '', Age: '',
+  Region: 'South_Asia', IndianZone: '',
 };
 
 function validateField(key, value, type, min, max) {
-  if (value === '' || value === undefined || value === null) return `${key} is required`;
+  if (value === '' || value == null) return `Required`;
   const num = Number(value);
-  if (isNaN(num)) return 'Must be a number';
-  if (num < min || num > max) return `Must be between ${min} and ${max}`;
-  if (type === 'integer' && !Number.isInteger(num)) return 'Must be a whole number';
+  if (isNaN(num))              return 'Must be a number';
+  if (num < min || num > max)  return `${min}–${max}`;
+  if (type === 'integer' && !Number.isInteger(num)) return 'Whole number only';
   return null;
 }
 
 export default function PredictForm({ onSubmit, loading }) {
-  const [values, setValues]   = useState(DEFAULTS);
-  const [errors, setErrors]   = useState({});
+  const [values,  setValues]  = useState(DEFAULTS);
+  const [errors,  setErrors]  = useState({});
   const [touched, setTouched] = useState({});
 
   const handleChange = useCallback((key, val) => {
     setValues((prev) => ({ ...prev, [key]: val }));
-    // Re-validate on change if field was already touched
     setTouched((prev) => {
       if (!prev[key]) return prev;
-      const field = FIELDS.find((f) => f.key === key);
-      if (field) {
-        const err = validateField(key, val, field.type, field.min, field.max);
-        setErrors((e) => ({ ...e, [key]: err }));
-      }
+      const f = FIELDS.find((f) => f.key === key);
+      if (f) setErrors((e) => ({ ...e, [key]: validateField(key, val, f.type, f.min, f.max) }));
       return prev;
     });
   }, []);
 
   const handleBlur = useCallback((key) => {
     setTouched((prev) => ({ ...prev, [key]: true }));
-    const field = FIELDS.find((f) => f.key === key);
-    if (field) {
-      const err = validateField(key, values[key], field.type, field.min, field.max);
-      setErrors((e) => ({ ...e, [key]: err }));
-    }
+    const f = FIELDS.find((f) => f.key === key);
+    if (f) setErrors((e) => ({ ...e, [key]: validateField(key, values[key], f.type, f.min, f.max) }));
   }, [values]);
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
-
-    // Validate all numeric fields
     const newErrors = {};
     let valid = true;
     FIELDS.forEach(({ key, type, min, max }) => {
@@ -165,10 +61,9 @@ export default function PredictForm({ onSubmit, loading }) {
     });
     setErrors(newErrors);
     setTouched(FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: true }), {}));
-
     if (!valid) return;
 
-    const payload = {
+    onSubmit({
       Pregnancies:              parseInt(values.Pregnancies, 10),
       Glucose:                  parseFloat(values.Glucose),
       BloodPressure:            parseFloat(values.BloodPressure),
@@ -179,121 +74,107 @@ export default function PredictForm({ onSubmit, loading }) {
       Age:                      parseInt(values.Age, 10),
       Region:                   values.Region,
       IndianZone:               values.IndianZone || null,
-    };
-
-    onSubmit(payload);
+    });
   }, [values, onSubmit]);
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4" id="predict-form">
-      {/* 8 clinical inputs in 2-column grid */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {FIELDS.map(({ key, label, type, min, max, step, placeholder, hint, icon }) => (
-          <div key={key} className="flex flex-col gap-1">
-            <label
-              htmlFor={`field-${key}`}
-              className="flex items-center gap-1.5 text-xs font-medium text-slate-400"
-            >
-              <span role="img" aria-label="">{icon}</span>
-              {label}
-            </label>
-            <input
-              id={`field-${key}`}
-              type="number"
-              inputMode="decimal"
-              min={min}
-              max={max}
-              step={step}
-              value={values[key]}
-              placeholder={placeholder}
-              onChange={(e) => handleChange(key, e.target.value)}
-              onBlur={() => handleBlur(key)}
-              disabled={loading}
-              className={`input-field ${touched[key] && errors[key] ? 'input-error' : ''}`}
-              aria-describedby={errors[key] ? `${key}-error` : `${key}-hint`}
-              aria-invalid={!!(touched[key] && errors[key])}
-            />
-            {touched[key] && errors[key] ? (
-              <p id={`${key}-error`} className="text-[11px] text-red-400 flex items-center gap-1">
-                <span>⚠</span> {errors[key]}
-              </p>
-            ) : (
-              <p id={`${key}-hint`} className="text-[10px] text-slate-600">{hint}</p>
-            )}
-          </div>
-        ))}
+    <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+      {/* 2-column grid for numeric inputs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {FIELDS.map(({ key, label, type, min, max, step, placeholder, hint, icon }) => {
+          const hasError = touched[key] && errors[key];
+          return (
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label htmlFor={`f-${key}`} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-secondary)',
+              }}>
+                <span>{icon}</span>{label}
+              </label>
+              <input
+                id={`f-${key}`}
+                type="number"
+                inputMode="decimal"
+                min={min} max={max} step={step}
+                value={values[key]}
+                placeholder={placeholder}
+                onChange={(e) => handleChange(key, e.target.value)}
+                onBlur={() => handleBlur(key)}
+                disabled={loading}
+                className={`input-field${hasError ? ' input-error' : ''}`}
+              />
+              <span style={{ fontSize: '0.62rem', color: hasError ? '#ef4444' : 'var(--text-dim)', minHeight: 14 }}>
+                {hasError ? `⚠ ${errors[key]}` : hint}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Dropdowns row */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* Dropdowns */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {/* Region */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="field-Region" className="text-xs font-medium text-slate-400">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label htmlFor="f-Region" style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
             🌍 Region
           </label>
-          <select
-            id="field-Region"
-            value={values.Region}
+          <select id="f-Region" value={values.Region}
             onChange={(e) => handleChange('Region', e.target.value)}
-            disabled={loading}
-            className="input-field appearance-none cursor-pointer"
-          >
+            disabled={loading} className="input-field"
+            style={{ appearance: 'none', cursor: 'pointer' }}>
             {REGIONS.map((r) => (
-              <option key={r} value={r} className="bg-slate-900">
+              <option key={r} value={r} style={{ background: 'var(--bg-card)' }}>
                 {r.replace(/_/g, ' ')}
               </option>
             ))}
           </select>
         </div>
 
-        {/* IndianZone (optional) */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="field-IndianZone" className="text-xs font-medium text-slate-400">
+        {/* Indian Zone */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label htmlFor="f-IndianZone" style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 5 }}>
             🇮🇳 Indian Zone
-            <span className="ml-1 rounded-full bg-slate-700 px-1.5 py-0.5 text-[9px] text-slate-500">
-              optional
-            </span>
+            <span style={{
+              background: 'rgba(6,182,212,0.1)', color: 'var(--cyan-400)',
+              border: '1px solid rgba(6,182,212,0.2)',
+              borderRadius: 999, padding: '1px 6px', fontSize: '0.58rem', fontWeight: 600,
+            }}>optional</span>
           </label>
-          <select
-            id="field-IndianZone"
-            value={values.IndianZone}
+          <select id="f-IndianZone" value={values.IndianZone}
             onChange={(e) => handleChange('IndianZone', e.target.value)}
-            disabled={loading}
-            className="input-field appearance-none cursor-pointer"
-          >
-            <option value="" className="bg-slate-900">None (skip NFHS-5)</option>
+            disabled={loading} className="input-field"
+            style={{ appearance: 'none', cursor: 'pointer' }}>
+            <option value="" style={{ background: 'var(--bg-card)' }}>None — skip NFHS-5</option>
             {INDIAN_ZONES.map((z) => (
-              <option key={z} value={z} className="bg-slate-900">{z}</option>
+              <option key={z} value={z} style={{ background: 'var(--bg-card)' }}>{z}</option>
             ))}
           </select>
-          <p className="text-[10px] text-slate-600">Enables NFHS-5 regional adjustment</p>
+          <span style={{ fontSize: '0.62rem', color: 'var(--text-dim)' }}>Enables regional prevalence adjustment</span>
         </div>
       </div>
 
       {/* Submit */}
-      <button
-        type="submit"
-        id="predict-submit-btn"
-        disabled={loading}
-        className="btn-primary w-full mt-2"
-      >
+      <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', marginTop: 4 }}>
         {loading ? (
           <>
-            <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            <svg style={{ animation: 'spin 1s linear infinite' }} width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="white" strokeOpacity="0.25" strokeWidth="4"/>
+              <path d="M4 12a8 8 0 018-8" stroke="white" strokeWidth="4" strokeLinecap="round"/>
             </svg>
-            Running Inference…
+            Running inference…
           </>
         ) : (
           <>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
             Predict Risk
           </>
         )}
       </button>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </form>
   );
 }

@@ -1,124 +1,289 @@
 /* src/index.css
-   -----------------------------------------------------------------------
-   Global styles and Tailwind directives.
-   Inter font is loaded via index.html <link>. JetBrains Mono is used for
-   numeric/code values throughout the UI.
-   ----------------------------------------------------------------------- */
+   ─────────────────────────────────────────────────────────────────────
+   DiabetaLens — Clinical dashboard design system
+   Palette: Deep navy base · Cyan/teal action · Semantic risk colors
+   Font stack: DM Sans (UI) · JetBrains Mono (data)
+   ───────────────────────────────────────────────────────────────────── */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+
 @layer base {
   :root {
-    --tier-low:    #22c55e;
-    --tier-medium: #f59e0b;
-    --tier-high:   #ef4444;
-    --surface:     #0f172a;
-    --surface-2:   #1e293b;
-    --surface-3:   #334155;
-    --border:      rgba(148, 163, 184, 0.12);
-    --glow-low:    rgba(34, 197, 94, 0.25);
-    --glow-medium: rgba(245, 158, 11, 0.25);
-    --glow-high:   rgba(239, 68, 68, 0.25);
+    /* ── Surfaces ── */
+    --bg-base:     #070E1A;
+    --bg-surface:  #0D1626;
+    --bg-card:     #111D30;
+    --bg-raised:   #172035;
+    --bg-input:    #0D1626;
+
+    /* ── Borders ── */
+    --border-subtle:  rgba(99, 179, 237, 0.08);
+    --border-default: rgba(99, 179, 237, 0.14);
+    --border-strong:  rgba(99, 179, 237, 0.25);
+
+    /* ── Cyan action ── */
+    --cyan-50:  #ecfeff;
+    --cyan-300: #67e8f9;
+    --cyan-400: #22d3ee;
+    --cyan-500: #06b6d4;
+    --cyan-600: #0891b2;
+
+    /* ── Risk semantic ── */
+    --risk-low:       #10b981;
+    --risk-low-bg:    rgba(16, 185, 129, 0.10);
+    --risk-low-ring:  rgba(16, 185, 129, 0.25);
+
+    --risk-medium:      #f59e0b;
+    --risk-medium-bg:   rgba(245, 158, 11, 0.10);
+    --risk-medium-ring: rgba(245, 158, 11, 0.25);
+
+    --risk-high:      #ef4444;
+    --risk-high-bg:   rgba(239, 68, 68, 0.10);
+    --risk-high-ring: rgba(239, 68, 68, 0.25);
+
+    /* ── Text ── */
+    --text-primary:   #E2EAF4;
+    --text-secondary: #8BA3BE;
+    --text-muted:     #4A6480;
+    --text-dim:       #2D4560;
   }
 
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
-    @apply bg-[#0f172a] text-slate-100 antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 119, 198, 0.15), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(34, 197, 94, 0.05), transparent);
+      radial-gradient(ellipse 100% 60% at 50% -10%,  rgba(6, 182, 212, 0.07)  0%, transparent 60%),
+      radial-gradient(ellipse 50%  40% at 90%  80%,  rgba(16, 185, 129, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 40%  30% at 10%  70%,  rgba(6, 182, 212, 0.03)  0%, transparent 50%);
     background-attachment: fixed;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    letter-spacing: -0.025em;
     font-weight: 700;
-    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply rounded-2xl border border-slate-700/50 bg-slate-800/60 backdrop-blur-sm;
-    box-shadow: 0 0 0 1px var(--border), 0 4px 24px rgba(0,0,0,0.3);
+
+  /* ── Cards ─────────────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    position: relative;
   }
 
-  .glass-card-hover {
-    @apply glass-card transition-all duration-300;
-    &:hover {
-      @apply border-slate-600/60;
-      box-shadow: 0 0 0 1px rgba(148,163,184,0.18), 0 8px 32px rgba(0,0,0,0.4);
-    }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.04) 0%, transparent 50%);
+    pointer-events: none;
   }
 
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3
-           font-semibold text-sm tracking-wide
-           bg-gradient-to-r from-violet-600 to-indigo-600
-           text-white shadow-lg
-           transition-all duration-200
-           hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/30 hover:shadow-xl
-           active:scale-95
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  .card-raised {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
   }
 
+  /* ── Inputs ─────────────────────────────────────────────────────── */
   .input-field {
-    @apply w-full rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-3
-           text-sm text-slate-100 placeholder-slate-500
-           transition-all duration-200 outline-none
-           focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20;
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  .input-field::placeholder { color: var(--text-dim); }
+
+  .input-field:focus {
+    border-color: var(--cyan-500);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
   }
 
   .input-error {
-    @apply border-red-500/70 focus:border-red-400 focus:ring-red-400/20;
+    border-color: var(--risk-high) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
   }
 
+  /* ── Buttons ────────────────────────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    background: linear-gradient(135deg, var(--cyan-600) 0%, var(--cyan-500) 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.25);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--cyan-500) 0%, var(--cyan-400) 100%);
+    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+
+  .btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── Risk tier badges ────────────────────────────────────────────── */
   .tier-badge {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5
-           font-bold text-xs tracking-widest uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  .tier-low    { @apply tier-badge bg-green-500/15 text-green-400 ring-1 ring-green-500/30; }
-  .tier-medium { @apply tier-badge bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30; }
-  .tier-high   { @apply tier-badge bg-red-500/15   text-red-400   ring-1 ring-red-500/30;   }
+  .tier-low {
+    background: var(--risk-low-bg);
+    color: var(--risk-low);
+    box-shadow: 0 0 0 1px var(--risk-low-ring);
+  }
 
-  .mono { font-family: 'JetBrains Mono', monospace; }
+  .tier-medium {
+    background: var(--risk-medium-bg);
+    color: var(--risk-medium);
+    box-shadow: 0 0 0 1px var(--risk-medium-ring);
+  }
+
+  .tier-high {
+    background: var(--risk-high-bg);
+    color: var(--risk-high);
+    box-shadow: 0 0 0 1px var(--risk-high-ring);
+  }
+
+  /* ── Stat chip ───────────────────────────────────────────────────── */
+  .stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+  }
+
+  /* ── Skeleton shimmer ────────────────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg-raised) 25%, #1e2d45 50%, var(--bg-raised) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  /* ── Mono utility ────────────────────────────────────────────────── */
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 0;
+  }
+
+  /* ── Section label ───────────────────────────────────────────────── */
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent;
+    background: linear-gradient(90deg, var(--cyan-400) 0%, #818cf8 50%, var(--cyan-300) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  .glow-cyan {
+    box-shadow: 0 0 24px rgba(6, 182, 212, 0.18), 0 0 0 1px rgba(6, 182, 212, 0.12);
   }
+
+  .glow-low    { box-shadow: 0 0 24px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.15); }
+  .glow-medium { box-shadow: 0 0 24px rgba(245, 158, 11, 0.15), 0 0 0 1px rgba(245, 158, 11, 0.15); }
+  .glow-high   { box-shadow: 0 0 24px rgba(239, 68, 68, 0.15),  0 0 0 1px rgba(239, 68, 68, 0.15);  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar       { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: #0f172a; }
-::-webkit-scrollbar-thumb  { background: #334155; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-/* Animated shimmer for loading state */
+/* ── Animations ──────────────────────────────────────────────────────── */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
 }
 
-.skeleton {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 8px;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeUp  { animation: fadeUp  0.35s ease both; }
+.animate-scaleIn { animation: scaleIn 0.25s ease both; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--bg-base); }
+::-webkit-scrollbar-thumb  { background: #1e3450; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2a4870; }
+
+/* ── Range input (reference range sliders) ────────────────────────────── */
+input[type=range] { -webkit-appearance: none; appearance: none; }
+input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 12px; height: 12px; border-radius: 50%;
+  margin-top: -4px; cursor: pointer;
 }
