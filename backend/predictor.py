@@ -47,13 +47,13 @@ class Predictor:
         SCALER_GDRIVE_ID = "1V7VxAwKwWZWb_xk8JASmXvAx9cEHvUU6"
 
         def gdrive_download(file_id, dest_path):
-            if os.path.exists(dest_path) and os.path.getsize(dest_path) > 1000:
+            if os.path.exists(dest_path) and os.path.getsize(dest_path) > 100000:
                 logger.info("File already exists: %s", dest_path)
                 return
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-            url = f"https://drive.google.com/uc?export=download&id={file_id}&confirm=t"
             logger.info("Downloading %s from Google Drive...", dest_path)
-            urllib.request.urlretrieve(url, dest_path)
+            import gdown
+            gdown.download(id=file_id, output=dest_path, quiet=False, fuzzy=True)
             logger.info("Downloaded %s (%.1f MB)", dest_path,
                         os.path.getsize(dest_path) / 1024 / 1024)
 
