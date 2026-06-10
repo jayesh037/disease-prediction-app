@@ -40,30 +40,30 @@ class Predictor:
         self._load()
 
     def _load(self) -> None:
-        import os, urllib.request
+        import os
+        import urllib.request
 
-        # Auto-download from Google Drive if files missing (Render ephemeral filesystem)
-        H5_GDRIVE_ID     = "1eendamuu32R0m2Q2CQCSCVGgNb5eSjZi"
-        SCALER_GDRIVE_ID = "1V7VxAwKwWZWb_xk8JASmXvAx9cEHvUU6"
+        # Direct HuggingFace URLs — no auth needed for public repos
+        H5_URL     = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/hybrid_dl.h5"
+        SCALER_URL = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/scaler.pkl"
 
-        def gdrive_download(file_id, dest_path):
-            if os.path.exists(dest_path) and os.path.getsize(dest_path) > 100000:
-                logger.info("File already exists: %s", dest_path)
+        def hf_download(url, dest_path):
+            if os.path.exists(dest_path) and os.path.getsize(dest_path) > 100_000:
+                logger.info("Already exists: %s", dest_path)
                 return
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-            logger.info("Downloading %s from Google Drive...", dest_path)
-            import gdown
-            gdown.download(id=file_id, output=dest_path, quiet=False)
-            logger.info("Downloaded %s (%.1f MB)", dest_path,
-                        os.path.getsize(dest_path) / 1024 / 1024)
+            logger.info("Downloading %s ...", dest_path)
+            urllib.request.urlretrieve(url, dest_path)
+            size_mb = os.path.getsize(dest_path) / 1024 / 1024
+            logger.info("Done: %s (%.1f MB)", dest_path, size_mb)
 
         try:
-            gdrive_download(H5_GDRIVE_ID, MODEL_PATH)
+            hf_download(H5_URL, MODEL_PATH)
         except Exception as exc:
             logger.error("Failed to download model: %s", exc)
 
         try:
-            gdrive_download(SCALER_GDRIVE_ID, SCALER_PATH)
+            hf_download(SCALER_URL, SCALER_PATH)
         except Exception as exc:
             logger.error("Failed to download scaler: %s", exc)
 
@@ -80,7 +80,8 @@ class Predictor:
             logger.info("Scaler loaded from %s", SCALER_PATH)
         except Exception as exc:
             logger.error("Failed to load scaler: %s", exc)
-
+            
+            
     def is_ready(self) -> bool:
         return self._model is not None and self._scaler is not None
 
