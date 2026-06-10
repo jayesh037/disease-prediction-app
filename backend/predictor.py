@@ -27,8 +27,8 @@ from risk_tier import (
 
 logger = logging.getLogger("predictor")
 
-MODEL_PATH = os.getenv("MODEL_PATH", "./models/hybrid_dl.h5")
-SCALER_PATH = os.getenv("SCALER_PATH", "./models/scaler.pkl")
+MODEL_PATH  = os.getenv("MODEL_PATH",  "./models/hybrid_dl_v2.keras")
+SCALER_PATH = os.getenv("SCALER_PATH", "./models/scaler_v2.pkl")
 
 
 class Predictor:
@@ -44,8 +44,8 @@ class Predictor:
         import urllib.request
 
         # Direct HuggingFace URLs — no auth needed for public repos
-        H5_URL     = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/hybrid_dl.h5"
-        SCALER_URL = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/scaler.pkl"
+        H5_URL     = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/hybrid_dl_v2.keras"
+        SCALER_URL = "https://huggingface.co/Lunarbrsh/diabetalens-models/resolve/main/scaler_v2.pkl"
 
         def hf_download(url, dest_path):
             if os.path.exists(dest_path) and os.path.getsize(dest_path) > 100_000:
