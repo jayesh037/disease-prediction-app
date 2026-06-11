@@ -400,11 +400,6 @@ disease-prediction-app/
 B.Tech CSE · Bennett University<br/>
 <a href="https://github.com/jayesh037">@jayesh037</a>
 </td>
-<td align="center">
-<b>Gunnu</b><br/>
-B.Tech CSE · Bennett University<br/>
-<a href="https://github.com/Gunnu29">@Gunnu29</a>
-</td>
 </tr>
 </table>
 
